@@ -1,42 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-    KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
-
--->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>ai.aletyx.kie.workshop</groupId>
-  <version>10.0.0</version>
+  <version>10.1.0</version>
   <artifactId>foureyes-principle</artifactId>
 
   <properties>
-    <quarkus-plugin.version>3.8.4</quarkus-plugin.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <quarkus-plugin.version>3.15.3.1</quarkus-plugin.version>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>3.8.4</quarkus.platform.version>
+    <quarkus.platform.version>3.15.3.1</quarkus.platform.version>
     <kogito.bom.group-id>org.kie.kogito</kogito.bom.group-id>
     <kogito.bom.artifact-id>kogito-bom</kogito.bom.artifact-id>
-    <kogito.bom.version>10.0.0</kogito.bom.version>
-    <version.org.kie.kogito>10.0.0</version.org.kie.kogito>
-    <kogito.management-console.image>docker.io/apache/incubator-kie-kogito-management-console:10.0.0</kogito.management-console.image>
-    <kogito.task-console.image>docker.io/apache/incubator-kie-kogito-task-console:10.0.0</kogito.task-console.image>
+    <kogito.bom.version>10.1.0</kogito.bom.version>
+    <version.org.kie.kogito>10.1.0</version.org.kie.kogito>
   </properties>
 
   <dependencyManagement>
@@ -58,9 +39,14 @@
       <dependency>
         <groupId>org.jbpm</groupId>
         <artifactId>jbpm-quarkus-devui-bom</artifactId>
-        <version>${kogito.bom.version}</version>
+        <version>${project.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.kie.kogito</groupId>
+        <artifactId>jbpm-usertask</artifactId>
+        <version>${kogito.bom.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -105,10 +91,16 @@
       <artifactId>kie-addons-quarkus-source-files</artifactId>
     </dependency>
 
+    <!-- DevUI -->
+    <dependency>
+      <groupId>org.jbpm</groupId>
+      <artifactId>jbpm-quarkus-devui</artifactId>
+    </dependency>
+
     <!-- Persistence -->
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jdbc-postgresql</artifactId>
+      <artifactId>quarkus-jdbc-h2</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -119,16 +111,14 @@
       <artifactId>kie-addons-quarkus-persistence-jdbc</artifactId>
     </dependency>
 
-    <!-- Data Index Addon -->
+    <!-- Data-Index Addon -->
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>kogito-addons-quarkus-data-index-postgresql</artifactId>
+      <artifactId>kogito-addons-quarkus-data-index-jpa</artifactId>
     </dependency>
-
-    <!-- Data Index Persistence -->
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>kogito-addons-quarkus-data-index-persistence-postgresql</artifactId>
+      <artifactId>kogito-addons-quarkus-data-index-persistence-jpa</artifactId>
     </dependency>
 
     <!-- Jobs Service -->
@@ -138,22 +128,28 @@
     </dependency>
     <dependency>
       <groupId>org.kie.kogito</groupId>
-      <artifactId>jobs-service-postgresql-common</artifactId>
+      <artifactId>jobs-service-storage-jpa</artifactId>
     </dependency>
 
     <!-- Data Audit -->
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>kogito-addons-quarkus-data-audit-jpa</artifactId>
+      <artifactId>kogito-addons-quarkus-data-audit</artifactId>
     </dependency>
     <dependency>
       <groupId>org.kie</groupId>
-      <artifactId>kogito-addons-quarkus-data-audit</artifactId>
+      <artifactId>kogito-addons-quarkus-data-audit-jpa</artifactId>
+    </dependency>
+
+    <!-- User Task persistence -->
+    <dependency>
+      <groupId>org.kie.kogito</groupId>
+      <artifactId>jbpm-usertask</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.jbpm</groupId>
-      <artifactId>jbpm-quarkus-devui</artifactId>
+      <artifactId>jbpm-addons-quarkus-usertask-storage-jpa</artifactId>
     </dependency>
 
     <!-- Test -->
@@ -175,51 +171,18 @@
 
   </dependencies>
 
-  <profiles>
-    <profile>
-      <id>container</id>
-      <properties>
-        <quarkus.profile>container</quarkus.profile>
-      </properties>
-      <dependencies>
-        <dependency>
-          <groupId>io.quarkus</groupId>
-          <artifactId>quarkus-container-image-jib</artifactId>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
-
   <build>
     <finalName>${project.artifactId}</finalName>
     <plugins>
       <plugin>
         <groupId>io.quarkus</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
-        <version>3.8.4</version>
+        <version>${quarkus-plugin.version}</version>
         <executions>
           <execution>
             <goals>
               <goal>build</goal>
             </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>run</goal>
-            </goals>
-            <configuration>
-              <target>
-                <copy todir="./docker-compose/svg" overwrite="true">
-                  <fileset dir="target/classes/META-INF/processSVG/" />
-                </copy>
-              </target>
-            </configuration>
           </execution>
         </executions>
       </plugin>
